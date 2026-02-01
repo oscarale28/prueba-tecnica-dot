@@ -27,8 +27,8 @@ export class ProyectoDetallesFormComponent {
     readonly messageService = inject(MessageService);
     readonly confirmService = inject(ConfirmationService);
     readonly formErrors = computed(() => {
-        const editable = this.proyectoService.formEditable();
-        if (!editable) {
+        const draft = this.proyectoService.draft();
+        if (!draft) {
             return {
                 nombre: '',
                 descripcion: '',
@@ -39,10 +39,10 @@ export class ProyectoDetallesFormComponent {
             };
         }
 
-        const nombre = editable.nombre?.trim() ?? '';
-        const descripcion = editable.descripcion?.trim() ?? '';
-        const fechaInicio = editable.fechaInicio ?? '';
-        const fechaFin = editable.fechaFin ?? '';
+        const nombre = draft.nombre?.trim() ?? '';
+        const descripcion = draft.descripcion?.trim() ?? '';
+        const fechaInicio = draft.fechaInicio ?? '';
+        const fechaFin = draft.fechaFin ?? '';
         const errors = {
             nombre: '',
             descripcion: '',
@@ -62,7 +62,7 @@ export class ProyectoDetallesFormComponent {
             errors.descripcion = 'La descripción no puede exceder 500 caracteres.';
         }
 
-        if (!editable.estado) {
+        if (!draft.estado) {
             errors.estado = 'El estado es obligatorio.';
         }
 
@@ -77,14 +77,7 @@ export class ProyectoDetallesFormComponent {
         return errors;
     });
 
-    readonly proyectoPausado = computed(() => {
-        const formOriginal = this.proyectoService.formOriginal();
-        if (!formOriginal) {
-            return false;
-        }
-        return formOriginal.estado === EstadoProyectoEnum.PAUSADO;
-    });
-
+    readonly proyectoPausado = computed(() => this.proyectoService.proyectoPausado());
     readonly isFormValid = computed(() => {
         const errors = this.formErrors();
         return !errors.nombre && !errors.descripcion && !errors.estado && !errors.fechaInicio && !errors.dateOrder;
@@ -119,13 +112,12 @@ export class ProyectoDetallesFormComponent {
             return;
         }
 
-        const editable = this.proyectoService.formEditable();
-        console.log(editable);
-        if (!editable) {
+        const draft = this.proyectoService.draft();
+        if (!draft) {
             return;
         }
 
-        if (editable.estado === EstadoProyectoEnum.PAUSADO) {
+        if (draft.estado === EstadoProyectoEnum.PAUSADO) {
             this.confirmService.confirm({
                 message: 'Está a punto de pausar el proyecto seleccionado. Esto no permitirá modificar el proyecto ni sus etapas hasta que sea reanudado. ¿Está seguro de querer continuar?',
                 header: 'Pausar proyecto',
@@ -135,7 +127,7 @@ export class ProyectoDetallesFormComponent {
                 acceptButtonStyleClass: 'p-button-primary',
                 rejectButtonStyleClass: 'p-button-secondary',
                 accept: () => {
-                    this.prepareOnSave(editable);
+                    this.prepareOnSave(draft);
                 },
                 reject: () => {
                     return;
@@ -144,16 +136,16 @@ export class ProyectoDetallesFormComponent {
             return;
         }
 
-        this.prepareOnSave(editable);
+        this.prepareOnSave(draft);
     }
 
-    prepareOnSave(editable: ProyectoResponseDTO) {
+    prepareOnSave(draft: ProyectoResponseDTO) {
         const payload: ProyectoUpdateDTO = {
-            nombre: editable.nombre.trim(),
-            descripcion: editable.descripcion?.trim() ?? '',
-            fechaInicio: editable.fechaInicio,
-            fechaFin: editable.fechaFin ? editable.fechaFin : null,
-            estado: editable.estado
+            nombre: draft.nombre.trim(),
+            descripcion: draft.descripcion?.trim() ?? '',
+            fechaInicio: draft.fechaInicio,
+            fechaFin: draft.fechaFin ? draft.fechaFin : null,
+            estado: draft.estado
         };
 
         this.proyectoService.saveProyecto(payload);

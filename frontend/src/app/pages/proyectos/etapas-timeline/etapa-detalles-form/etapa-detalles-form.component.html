@@ -1,0 +1,54 @@
+<div class="flex flex-col gap-2">
+    <div class="form-field" [ngClass]="{ 'field-changed': isFieldChanged('nombre') }">
+        <label class="text-xs font-medium">Nombre</label>
+        <input pInputText type="text"
+            [ngModel]="etapaService.isEditing(etapa.idEtapa) ? (etapaService.editDraft()?.nombre ?? '') : etapa.nombre"
+            (ngModelChange)="onFieldChange('nombre', $event)" [readonly]="!etapaService.isEditing(etapa.idEtapa)"
+            [disabled]="etapaService.saving()" />
+        <app-field-error [showError]="etapaService.isEditing(etapa.idEtapa) && !!formErrors().nombre"
+            [errorMessage]="formErrors().nombre" />
+    </div>
+
+    <div class="form-field" [ngClass]="{ 'field-changed': isFieldChanged('fechaInicio') }">
+        <label class="text-xs font-medium">Fecha inicio</label>
+        <input pInputText type="date"
+            [ngModel]="etapaService.isEditing(etapa.idEtapa) ? (etapaService.editDraft()?.fechaInicio ?? '') : etapa.fechaInicio"
+            (ngModelChange)="onFieldChange('fechaInicio', $event)" [readonly]="!etapaService.isEditing(etapa.idEtapa)"
+            [disabled]="etapaService.saving()" />
+        <app-field-error [showError]="etapaService.isEditing(etapa.idEtapa) && !!formErrors().fechaInicio"
+            [errorMessage]="formErrors().fechaInicio" />
+    </div>
+
+    <div class="form-field" [ngClass]="{ 'field-changed': isFieldChanged('fechaFinEstimada') }">
+        <label class="text-xs font-medium">Fecha fin estimada</label>
+        <input pInputText type="date"
+            [ngModel]="etapaService.isEditing(etapa.idEtapa) ? (etapaService.editDraft()?.fechaFinEstimada ?? '') : etapa.fechaFinEstimada"
+            (ngModelChange)="onFieldChange('fechaFinEstimada', $event)"
+            [readonly]="!etapaService.isEditing(etapa.idEtapa)" [disabled]="etapaService.saving()" />
+        <app-field-error [showError]="etapaService.isEditing(etapa.idEtapa) && !!formErrors().fechaFinEstimada"
+            [errorMessage]="formErrors().fechaFinEstimada" />
+        <app-field-error [showError]="etapaService.isEditing(etapa.idEtapa) && !!formErrors().dateOrder"
+            [errorMessage]="formErrors().dateOrder" />
+    </div>
+
+    <div class="form-field" [ngClass]="{ 'field-changed': isFieldChanged('presupuestoAsignado') }">
+        <label class="text-xs font-medium">Presupuesto asignado</label>
+        <p-inputnumber mode="currency" currency="USD"
+            [ngModel]="etapaService.isEditing(etapa.idEtapa) ? (etapaService.editDraft()?.presupuestoAsignado ?? 0) : etapa.presupuestoAsignado"
+            (ngModelChange)="onFieldChange('presupuestoAsignado', coerceNumber($event))"
+            [readonly]="!etapaService.isEditing(etapa.idEtapa)" [disabled]="etapaService.saving()" />
+        <app-field-error [showError]="etapaService.isEditing(etapa.idEtapa) && !!formErrors().presupuestoAsignado"
+            [errorMessage]="formErrors().presupuestoAsignado" />
+    </div>
+
+    @if(etapaService.isEditing(etapa.idEtapa)) {
+    <div class="flex items-center gap-2">
+        <button pButton type="button" label="Guardar" size="small" (click)="onSave()"
+            [disabled]="etapaService.saving()">
+        </button>
+        <button pButton type="button" label="Cancelar" size="small" (click)="etapaService.cancelEdit()"
+            [disabled]="etapaService.saving()">
+        </button>
+    </div>
+    }
+</div>

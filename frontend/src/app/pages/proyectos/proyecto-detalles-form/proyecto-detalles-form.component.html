@@ -2,9 +2,8 @@
     <div class="form-field" [ngClass]="{ 'field-changed': proyectoService.changedFields().nombre }">
         <label for="proyecto-nombre">Nombre</label>
         <input id="proyecto-nombre" type="text" pInputText
-            [disabled]="!proyectoService.formEditable() || this.proyectoPausado()"
-            [ngModel]="proyectoService.formEditable()?.nombre || ''"
-            (ngModelChange)="onFieldChange('nombre', $event)" />
+            [disabled]="!proyectoService.draft() || this.proyectoPausado()"
+            [ngModel]="proyectoService.draft()?.nombre || ''" (ngModelChange)="onFieldChange('nombre', $event)" />
         <app-field-error [showError]="!!formErrors().nombre" [errorMessage]="formErrors().nombre" />
     </div>
 
@@ -13,8 +12,8 @@
             Descripción
         </label>
         <textarea id="proyecto-descripcion" rows="3" pTextarea autoResize="true"
-            [disabled]="!proyectoService.formEditable() || this.proyectoPausado()"
-            [ngModel]="proyectoService.formEditable()?.descripcion || ''"
+            [disabled]="!proyectoService.draft() || this.proyectoPausado()"
+            [ngModel]="proyectoService.draft()?.descripcion || ''"
             (ngModelChange)="onFieldChange('descripcion', $event)"></textarea>
         <app-field-error [showError]="!!formErrors().descripcion" [errorMessage]="formErrors().descripcion" />
     </div>
@@ -22,7 +21,7 @@
     <div class="form-field" [ngClass]="{ 'field-changed': proyectoService.changedFields().estado }">
         <label for="proyecto-estado">Estado</label>
         <p-select id="proyecto-estado" [options]="estadoOptions" optionLabel="label" optionValue="value"
-            [disabled]="!proyectoService.formEditable()" [ngModel]="proyectoService.formEditable()?.estado"
+            [disabled]="!proyectoService.draft()" [ngModel]="proyectoService.draft()?.estado"
             (ngModelChange)="onFieldChange('estado', $event)"></p-select>
         <app-field-error [showError]="!!formErrors().estado" [errorMessage]="formErrors().estado" />
     </div>
@@ -30,8 +29,8 @@
     <div class="form-field" [ngClass]="{ 'field-changed': proyectoService.changedFields().fechaInicio }">
         <label for="proyecto-fecha-inicio">Fecha inicio</label>
         <input id="proyecto-fecha-inicio" type="date" pInputText
-            [disabled]="!proyectoService.formEditable() || this.proyectoPausado()"
-            [ngModel]="proyectoService.formEditable()?.fechaInicio || ''"
+            [disabled]="!proyectoService.draft() || this.proyectoPausado()"
+            [ngModel]="proyectoService.draft()?.fechaInicio || ''"
             (ngModelChange)="onFieldChange('fechaInicio', $event)" />
         <app-field-error [showError]="!!formErrors().fechaInicio" [errorMessage]="formErrors().fechaInicio" />
     </div>
@@ -39,9 +38,8 @@
     <div class="form-field" [ngClass]="{ 'field-changed': proyectoService.changedFields().fechaFin }">
         <label for="proyecto-fecha-fin">Fecha fin</label>
         <input id="proyecto-fecha-fin" type="date" pInputText
-            [disabled]="!proyectoService.formEditable() || this.proyectoPausado()"
-            [ngModel]="proyectoService.formEditable()?.fechaFin || ''"
-            (ngModelChange)="onFieldChange('fechaFin', $event)" />
+            [disabled]="!proyectoService.draft() || this.proyectoPausado()"
+            [ngModel]="proyectoService.draft()?.fechaFin || ''" (ngModelChange)="onFieldChange('fechaFin', $event)" />
         <app-field-error [showError]="!!formErrors().dateOrder" [errorMessage]="formErrors().dateOrder" />
     </div>
 

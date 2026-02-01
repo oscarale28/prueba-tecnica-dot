@@ -5,8 +5,8 @@ import { MessageService } from 'primeng/api';
 import { ChartData, ChartOptions } from 'chart.js';
 import { environment } from '../../../environments/environment';
 import {
-    EstadoEtapa,
-    EstadoProyecto,
+    EstadoEtapaEnum,
+    EstadoProyectoEnum,
     EtapaResponseDTO,
     PaginatedResponse,
     ProyectoPanel,
@@ -33,6 +33,8 @@ export class ProyectoService {
     readonly rows = signal<number>(10);
 
     readonly selectedProyecto = signal<ProyectoListResponseDTO | null>(null);
+    readonly selectedProyectoId = computed(() => this.selectedProyecto()?.idProyecto ?? null);
+    readonly proyectoPausado = computed(() => this.selectedProyecto()?.estado === EstadoProyectoEnum.PAUSADO);
 
     readonly etapas = signal<EtapaResponseDTO[]>([]);
     readonly etapasLoading = signal<boolean>(false);
@@ -44,10 +46,10 @@ export class ProyectoService {
 
     readonly formLoading = signal<boolean>(false);
     readonly formOriginal = signal<ProyectoResponseDTO | null>(null);
-    readonly formEditable = signal<ProyectoResponseDTO | null>(null);
+    readonly draft = signal<ProyectoResponseDTO | null>(null);
     readonly changedFields = computed(() => {
         const original = this.formOriginal();
-        const editable = this.formEditable();
+        const editable = this.draft();
         if (!original || !editable) {
             return {
                 nombre: false,
@@ -110,7 +112,13 @@ export class ProyectoService {
     }
 
     // Consulta paginada de proyectos
-    loadProyectos(page: number, size: number) {
+    loadProyectos(page?: number, size?: number) {
+
+        if (page === undefined || size === undefined) {
+            page = Math.floor(this.first() / this.rows()) + 1;
+            size = this.rows();
+        }
+
         this.loading.set(true);
         this.getProyectos(page, size).subscribe({
             next: (response) => {
@@ -145,7 +153,7 @@ export class ProyectoService {
     openEtapasDialog(proyecto: ProyectoListResponseDTO) {
         this.formDialogOpen.set(false);
         this.formOriginal.set(null);
-        this.formEditable.set(null);
+        this.draft.set(null);
         this.selectedProyecto.set(proyecto);
         this.etapas.set([]);
         this.loadEtapas(proyecto.idProyecto);
@@ -175,7 +183,7 @@ export class ProyectoService {
         this.formDialogOpen.set(false);
         this.selectedProyecto.set(proyecto);
         this.formOriginal.set(null);
-        this.formEditable.set(null);
+        this.draft.set(null);
         this.formLoading.set(true);
 
         if (this.isDesktop()) {
@@ -195,7 +203,7 @@ export class ProyectoService {
                     estado: response.estado
                 };
                 this.formOriginal.set(base);
-                this.formEditable.set({ ...base });
+                this.draft.set({ ...base });
             },
             error: (error: HttpErrorResponse) => {
                 console.error('Error loading proyecto:', error);
@@ -219,7 +227,7 @@ export class ProyectoService {
             this.activePanel.set(null);
         }
         this.formOriginal.set(null);
-        this.formEditable.set(null);
+        this.draft.set(null);
     }
 
     closeSidePanel() {
@@ -228,18 +236,18 @@ export class ProyectoService {
         }
         if (this.activePanel() === ProyectoPanel.Form) {
             this.formOriginal.set(null);
-            this.formEditable.set(null);
+            this.draft.set(null);
         }
         this.selectedProyecto.set(null);
         this.activePanel.set(null);
     }
 
     updateFormField<K extends keyof ProyectoResponseDTO>(field: K, value: ProyectoResponseDTO[K]) {
-        this.formEditable.update((prev) => (prev ? { ...prev, [field]: value } : prev));
+        this.draft.update((prev) => (prev ? { ...prev, [field]: value } : prev));
     }
 
     saveProyecto(payload: ProyectoUpdateDTO) {
-        const editable = this.formEditable();
+        const editable = this.draft();
         if (!editable) {
             return;
         }
@@ -247,9 +255,7 @@ export class ProyectoService {
         this.formLoading.set(true);
         this.updateProyecto(editable.idProyecto, payload).subscribe({
             next: () => {
-                const rows = this.rows();
-                const page = Math.floor(this.first() / rows) + 1;
-                this.loadProyectos(page, rows);
+                this.loadProyectos();
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Éxito',
@@ -276,7 +282,7 @@ export class ProyectoService {
     }
 
     // Mapeo de severidad de estado de proyecto para el tag en tabla
-    getEstadoProyectoSeverity(estado: EstadoProyecto) {
+    getEstadoProyectoSeverity(estado: EstadoProyectoEnum) {
         switch (estado) {
             case 'PLANIFICADO':
                 return 'info';
@@ -292,12 +298,12 @@ export class ProyectoService {
     }
 
     // Mapeo de color de estado de etapa para chart y tags en timeline
-    getEtapaStatusColor(estado: EstadoEtapa) {
+    getEtapaStatusColor(estado: EstadoEtapaEnum) {
         return this.etapaStatusColors[estado] ?? this.etapaStatusColors.PENDIENTE;
     }
 
     // Mapeo de color de texto de estado de etapa para chart y tags en timeline
-    getEtapaStatusTextColor(estado: EstadoEtapa) {
+    getEtapaStatusTextColor(estado: EstadoEtapaEnum) {
         return estado === 'EN_PROGRESO' ? '#ffffff' : '#111827';
     }
 
@@ -362,5 +368,13 @@ export class ProyectoService {
                 this.etapasLoading.set(false);
             }
         });
+    }
+
+    refreshEtapas() {
+        const idProyecto = this.selectedProyectoId();
+        if (!idProyecto) {
+            return;
+        }
+        this.loadEtapas(idProyecto);
     }
 }

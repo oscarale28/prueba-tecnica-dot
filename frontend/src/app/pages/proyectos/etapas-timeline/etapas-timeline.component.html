@@ -1,7 +1,6 @@
-<p-timeline [value]="proyectoService.etapas()">
+<p-timeline [value]="etapaService.etapas()">
     <ng-template #marker let-event>
-        <span class="flex w-8 h-8 items-center justify-center rounded-full z-10 shadow-sm"
-            [style]="{
+        <span class="flex w-8 h-8 items-center justify-center rounded-full z-10 shadow-sm" [style]="{
                 'background-color': proyectoService.getEtapaStatusColor(event.estado),
                 'color': proyectoService.getEtapaStatusTextColor(event.estado)
             }">
@@ -10,16 +9,41 @@
     </ng-template>
     <ng-template pTemplate="content" let-etapa>
         <div class="flex flex-col gap-2 mb-6">
-            <p-tag [value]="etapa.estado" [style]="{
+            <div class="flex items-center justify-between gap-2">
+                <p-tag [value]="etapa.estado" [style]="{
                 'background-color': proyectoService.getEtapaStatusColor(etapa.estado),
                 'color': proyectoService.getEtapaStatusTextColor(etapa.estado)
-            }" />
-            <div class="flex items-center justify-between">
-                <span class="font-semibold">{{ etapa.nombre }}</span>
+            }" class="flex-1 h-8" />
+
+                <!-- Editar etapa -->
+                @if(isEditable(etapa)) {
+                <button pButton type="button" icon="pi pi-pencil" class="h-8" (click)="etapaService.startEdit(etapa)"
+                    [disabled]="etapaService.saving() || proyectoService.proyectoPausado() || etapaService.editingId() !== null"
+                    pTooltip="Editar etapa" [style]="{
+                        'background-color': proyectoService.getEtapaStatusColor(etapa.estado),
+                        'color': proyectoService.getEtapaStatusTextColor(etapa.estado),
+                        'border-color': 'transparent'
+                    }">
+                </button>
+                }
+
+                <!-- Iniciar etapa -->
+                @if(etapaService.canStartEtapa(etapa)) {
+                <button pButton type="button" icon="pi pi-play" class="h-8 bg-blue-500!"
+                    (click)="etapaService.startEtapa(etapa)" [disabled]="etapaService.saving()"
+                    pTooltip="Iniciar etapa">
+                </button>
+                }
+
+                <!-- Completar etapa -->
+                @if(etapaService.canCompleteEtapa(etapa)) {
+                <p-button type="button" icon="pi pi-check" class="h-8 bg-green-500!"
+                    (click)="etapaService.completeEtapa(etapa)" [disabled]="etapaService.saving()"
+                    [pTooltip]="'Completar etapa'" tooltipPosition="top">
+                </p-button>
+                }
             </div>
-            <div class="text-sm">Inicio: {{ etapa.fechaInicio | date: 'dd/MM/yyyy' }}</div>
-            <div class="text-sm">Fin estimado: {{ etapa.fechaFinEstimada | date: 'dd/MM/yyyy' }}</div>
-            <div class="text-sm">Presupuesto asignado: {{ etapa.presupuestoAsignado | number: '1.0-0' }}</div>
+            <app-etapa-detalles-form [etapa]="etapa" />
         </div>
     </ng-template>
 </p-timeline>

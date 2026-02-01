@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ProyectoListResponseDTO } from '../models/proyecto.models';
 import { ProyectoService } from '../service/proyecto.service';
+import { EtapaService } from '../service/etapa.service';
+import { ProyectoSyncService } from '../service/proyecto-sync.service';
 import { ProyectosTableComponent } from "./proyectos-table/proyectos-table.component";
 import { EtapasTimelineComponent } from './etapas-timeline/etapas-timeline.component';
 import { ProyectoDialogComponent } from './proyecto-dialog/proyecto-dialog.component';
@@ -25,7 +27,7 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
     ],
     templateUrl: 'proyectos.component.html',
     styleUrls: ['proyectos.component.css'],
-    providers: [MessageService, ConfirmationService, ProyectoService]
+    providers: [MessageService, ConfirmationService, ProyectoService, EtapaService, ProyectoSyncService]
 })
 export class ProyectosComponent {
     readonly proyectoService = inject(ProyectoService);

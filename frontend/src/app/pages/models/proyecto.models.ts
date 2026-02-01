@@ -6,8 +6,6 @@ export interface PaginatedResponse<T> {
     totalPages: number;
 }
 
-export type EstadoProyecto = 'PLANIFICADO' | 'EN_EJECUCION' | 'PAUSADO' | 'FINALIZADO';
-
 export enum ProyectoPanel {
     Etapas = 'etapas',
     Form = 'form'
@@ -20,19 +18,23 @@ export enum EstadoProyectoEnum {
     FINALIZADO = 'FINALIZADO'
 }
 
-export const ESTADO_PROYECTO_OPTIONS: { label: string; value: EstadoProyecto }[] = [
-    { label: 'Planificado', value: 'PLANIFICADO' },
-    { label: 'En ejecución', value: 'EN_EJECUCION' },
-    { label: 'Pausado', value: 'PAUSADO' },
-    { label: 'Finalizado', value: 'FINALIZADO' }
+export const ESTADO_PROYECTO_OPTIONS: { label: string; value: EstadoProyectoEnum }[] = [
+    { label: 'Planificado', value: EstadoProyectoEnum.PLANIFICADO },
+    { label: 'En ejecución', value: EstadoProyectoEnum.EN_EJECUCION },
+    { label: 'Pausado', value: EstadoProyectoEnum.PAUSADO },
+    { label: 'Finalizado', value: EstadoProyectoEnum.FINALIZADO }
 ];
 
-export type EstadoEtapa = 'PENDIENTE' | 'EN_PROGRESO' | 'COMPLETADA';
+export enum EstadoEtapaEnum {
+    PENDIENTE = 'PENDIENTE',
+    EN_PROGRESO = 'EN_PROGRESO',
+    COMPLETADA = 'COMPLETADA'
+}
 
 export interface EtapaSimpleDTO {
     nombre: string;
     orden: number;
-    estado: EstadoEtapa;
+    estado: EstadoEtapaEnum;
 }
 
 export interface EtapaResumenDTO {
@@ -47,7 +49,7 @@ export interface ProyectoListResponseDTO {
     descripcion: string;
     fechaInicio: string;
     fechaFin: string;
-    estado: EstadoProyecto;
+    estado: EstadoProyectoEnum;
     resumenEtapas: EtapaResumenDTO;
 }
 
@@ -57,7 +59,7 @@ export interface ProyectoResponseDTO {
     descripcion: string;
     fechaInicio: string;
     fechaFin: string;
-    estado: EstadoProyecto;
+    estado: EstadoProyectoEnum;
 }
 
 export interface ProyectoUpdateDTO {
@@ -65,7 +67,7 @@ export interface ProyectoUpdateDTO {
     descripcion: string;
     fechaInicio: string;
     fechaFin: string | null;
-    estado: EstadoProyecto;
+    estado: EstadoProyectoEnum;
 }
 
 export interface EtapaResponseDTO {
@@ -75,8 +77,16 @@ export interface EtapaResponseDTO {
     fechaInicio: string;
     fechaFinEstimada: string;
     presupuestoAsignado: number;
-    estado: EstadoEtapa;
+    estado: EstadoEtapaEnum;
     proyecto: ProyectoResponseDTO;
+}
+
+export interface EtapaUpdateDTO {
+    nombre: string;
+    orden: number;
+    fechaInicio: string;
+    fechaFinEstimada: string;
+    presupuestoAsignado: number;
 }
 
 export interface ProyectoDetailResponseDTO {
@@ -85,6 +95,6 @@ export interface ProyectoDetailResponseDTO {
     descripcion: string;
     fechaInicio: string;
     fechaFin: string;
-    estado: EstadoProyecto;
+    estado: EstadoProyectoEnum;
     etapas: EtapaResponseDTO[];
 }
