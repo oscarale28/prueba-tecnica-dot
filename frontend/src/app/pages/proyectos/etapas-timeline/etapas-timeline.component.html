@@ -19,7 +19,7 @@
                 @if(isEditable(etapa)) {
                 <button pButton type="button" icon="pi pi-pencil" class="h-8" (click)="etapaService.startEdit(etapa)"
                     [disabled]="etapaService.saving() || proyectoService.proyectoPausado() || etapaService.editingId() !== null"
-                    pTooltip="Editar etapa" [style]="{
+                    pTooltip="Editar etapa" tooltipPosition="top" [style]="{
                         'background-color': proyectoService.getEtapaStatusColor(etapa.estado),
                         'color': proyectoService.getEtapaStatusTextColor(etapa.estado),
                         'border-color': 'transparent'
@@ -30,17 +30,17 @@
                 <!-- Iniciar etapa -->
                 @if(etapaService.canStartEtapa(etapa)) {
                 <button pButton type="button" icon="pi pi-play" class="h-8 bg-blue-500!"
-                    (click)="etapaService.startEtapa(etapa)" [disabled]="etapaService.saving()"
-                    pTooltip="Iniciar etapa">
+                    (click)="etapaService.startEtapa(etapa)" [disabled]="etapaService.saving()" pTooltip="Iniciar etapa"
+                    [tooltipPosition]="'top'">
                 </button>
                 }
 
                 <!-- Completar etapa -->
                 @if(etapaService.canCompleteEtapa(etapa)) {
-                <p-button type="button" icon="pi pi-check" class="h-8 bg-green-500!"
+                <button pButton type="button" icon="pi pi-check" class="h-8 bg-green-500!"
                     (click)="etapaService.completeEtapa(etapa)" [disabled]="etapaService.saving()"
-                    [pTooltip]="'Completar etapa'" tooltipPosition="top">
-                </p-button>
+                    pTooltip="Completar etapa" [tooltipPosition]="'top'">
+                </button>
                 }
             </div>
             <app-etapa-detalles-form [etapa]="etapa" />
