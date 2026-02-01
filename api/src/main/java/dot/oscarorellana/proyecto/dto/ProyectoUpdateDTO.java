@@ -9,19 +9,16 @@ import java.time.LocalDate;
 
 public class ProyectoUpdateDTO {
 
-    @NotBlank(message = "El nombre es obligatorio")
     @Size(max = 150, message = "El nombre no puede exceder 150 caracteres")
     private String nombre;
 
     @Size(max = 500, message = "La descripción no puede exceder 500 caracteres")
     private String descripcion;
 
-    @NotNull(message = "La fecha de inicio es obligatoria")
     private LocalDate fechaInicio;
 
     private LocalDate fechaFin;
 
-    @NotNull(message = "El estado es obligatorio")
     private EstadoProyecto estado;
 
     public ProyectoUpdateDTO() {

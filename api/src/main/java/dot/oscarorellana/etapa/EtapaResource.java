@@ -1,9 +1,8 @@
 package dot.oscarorellana.etapa;
 
-import dot.oscarorellana.PaginatedResponse;
+import dot.oscarorellana.common.HttpUtils;
 import dot.oscarorellana.etapa.dto.*;
 import dot.oscarorellana.proyecto.ProyectoService;
-import dot.oscarorellana.proyecto.Proyecto;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -11,7 +10,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Path("/etapas")
 @Produces(MediaType.APPLICATION_JSON)
@@ -32,9 +30,7 @@ public class EtapaResource {
     public Response findByProyectoId(@PathParam("proyectoId") Long proyectoId) {
 
         if (proyectoId == null) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("El parámetro proyectoId es obligatorio")
-                    .build();
+            return HttpUtils.badRequest("El parámetro proyectoId es obligatorio");
         }
 
         List<EtapaResponseDTO> etapaDTOs = etapaService.findEtapasByProyectoId(proyectoId);
@@ -46,9 +42,7 @@ public class EtapaResource {
     public Response findById(@PathParam("id") Long id) {
         return etapaService.findById(id)
                 .map(etapa -> Response.ok(etapaMapper.toResponseDTO(etapa)).build())
-                .orElse(Response.status(Response.Status.NOT_FOUND)
-                        .entity("Etapa no encontrada con ID: " + id)
-                        .build());
+                .orElse(HttpUtils.notFound("Etapa no encontrada con ID: " + id));
     }
 
     @POST
@@ -59,18 +53,14 @@ public class EtapaResource {
                     try {
                         etapaService.validateEtapaStateTransition(etapa);
                     } catch (IllegalStateException ex) {
-                        return Response.status(Response.Status.BAD_REQUEST)
-                                .entity(ex.getMessage())
-                                .build();
+                        return HttpUtils.badRequest(ex.getMessage());
                     }
                     Etapa created = etapaService.create(etapa);
                     return Response.status(Response.Status.CREATED)
                             .entity(etapaMapper.toResponseDTO(created))
                             .build();
                 })
-                .orElse(Response.status(Response.Status.NOT_FOUND)
-                        .entity("Proyecto no encontrado con ID: " + dto.getProyectoId())
-                        .build());
+                .orElse(HttpUtils.notFound("Proyecto no encontrado con ID: " + dto.getProyectoId()));
     }
 
     @PUT
@@ -86,32 +76,24 @@ public class EtapaResource {
                                     try {
                                         etapaService.validateEtapaStateTransition(existing);
                                     } catch (IllegalStateException ex) {
-                                        return Response.status(Response.Status.BAD_REQUEST)
-                                                .entity(ex.getMessage())
-                                                .build();
+                                        return HttpUtils.badRequest(ex.getMessage());
                                     }
                                     Etapa updated = etapaService.update(existing);
                                     return Response.ok(etapaMapper.toResponseDTO(updated)).build();
                                 })
-                                .orElse(Response.status(Response.Status.NOT_FOUND)
-                                        .entity("Proyecto no encontrado con ID: " + dto.getProyectoId())
-                                        .build());
+                                .orElse(HttpUtils.notFound("Proyecto no encontrado con ID: " + dto.getProyectoId()));
                     }
                     
                     etapaMapper.updateEntityFromDto(existing, dto, null);
                     try {
                         etapaService.validateEtapaStateTransition(existing);
                     } catch (IllegalStateException ex) {
-                        return Response.status(Response.Status.BAD_REQUEST)
-                                .entity(ex.getMessage())
-                                .build();
+                        return HttpUtils.badRequest(ex.getMessage());
                     }
                     Etapa updated = etapaService.update(existing);
                     return Response.ok(etapaMapper.toResponseDTO(updated)).build();
                 })
-                .orElse(Response.status(Response.Status.NOT_FOUND)
-                        .entity("Etapa no encontrada con ID: " + id)
-                        .build());
+                .orElse(HttpUtils.notFound("Etapa no encontrada con ID: " + id));
     }
 
     @DELETE
@@ -122,8 +104,6 @@ public class EtapaResource {
                     etapaService.delete(etapa);
                     return Response.noContent().build();
                 })
-                .orElse(Response.status(Response.Status.NOT_FOUND)
-                        .entity("Etapa no encontrada con ID: " + id)
-                        .build());
+                .orElse(HttpUtils.notFound("Etapa no encontrada con ID: " + id));
     }
 }

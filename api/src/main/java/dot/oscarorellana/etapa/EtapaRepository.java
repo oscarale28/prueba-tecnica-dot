@@ -1,6 +1,6 @@
 package dot.oscarorellana.etapa;
 
-import dot.oscarorellana.PaginatedResponse;
+import dot.oscarorellana.common.PaginatedResponse;
 import dot.oscarorellana.etapa.dto.EtapaResponseDTO;
 import dot.oscarorellana.proyecto.dto.ProyectoResponseDTO;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;

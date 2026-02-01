@@ -1,6 +1,7 @@
 package dot.oscarorellana.proyecto;
 
-import dot.oscarorellana.PaginatedResponse;
+import dot.oscarorellana.common.HttpUtils;
+import dot.oscarorellana.common.PaginatedResponse;
 import dot.oscarorellana.proyecto.dto.ProyectoCreateDTO;
 import dot.oscarorellana.proyecto.dto.ProyectoListResponseDTO;
 import dot.oscarorellana.proyecto.dto.ProyectoMapper;
@@ -26,9 +27,7 @@ public class ProyectoResource {
     public Response findAll(@QueryParam("page") @DefaultValue("1") int page,
                             @QueryParam("size") @DefaultValue("10") int size) {
         if (page < 1 || size < 1) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Los parámetros page y size deben ser mayores a 0")
-                    .build();
+            return HttpUtils.badRequest("Los parámetros page y size deben ser mayores a 0");
         }
         
         PaginatedResponse<ProyectoListResponseDTO> response = proyectoService.findAll(page, size);
@@ -40,9 +39,7 @@ public class ProyectoResource {
     public Response findById(@PathParam("id") Long id) {
         return proyectoService.findById(id)
                 .map(dto -> Response.ok(dto).build())
-                .orElse(Response.status(Response.Status.NOT_FOUND)
-                        .entity("Proyecto no encontrado con ID: " + id)
-                        .build());
+                .orElse(HttpUtils.notFound("Proyecto no encontrado con ID: " + id));
     }
 
     @POST
@@ -59,13 +56,17 @@ public class ProyectoResource {
     public Response update(@PathParam("id") Long id, @Valid ProyectoUpdateDTO dto) {
         return proyectoService.findEntityById(id)
                 .map(existing -> {
-                    proyectoMapper.updateEntityFromDto(existing, dto);
-                    Proyecto updated = proyectoService.update(existing);
-                    return Response.ok(proyectoMapper.toResponseDTO(updated)).build();
+                    try {
+                        proyectoMapper.updateEntityFromDto(existing, dto);
+                        proyectoService.update(existing);
+                        return HttpUtils.success("Proyecto actualizado exitosamente");
+                    } catch (IllegalStateException ex) {
+                        return HttpUtils.conflict(ex.getMessage());
+                    } catch (RuntimeException ex) {
+                        return HttpUtils.badRequest(ex.getMessage());
+                    }
                 })
-                .orElse(Response.status(Response.Status.NOT_FOUND)
-                        .entity("Proyecto no encontrado con ID: " + id)
-                        .build());
+                .orElse(HttpUtils.notFound("Proyecto no encontrado con ID: " + id));
     }
 
     @DELETE
@@ -76,8 +77,6 @@ public class ProyectoResource {
                     proyectoService.delete(proyecto);
                     return Response.noContent().build();
                 })
-                .orElse(Response.status(Response.Status.NOT_FOUND)
-                        .entity("Proyecto no encontrado con ID: " + id)
-                        .build());
+                .orElse(HttpUtils.notFound("Proyecto no encontrado con ID: " + id));
     }
 }

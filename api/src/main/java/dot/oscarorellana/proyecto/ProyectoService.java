@@ -1,6 +1,6 @@
 package dot.oscarorellana.proyecto;
 
-import dot.oscarorellana.PaginatedResponse;
+import dot.oscarorellana.common.PaginatedResponse;
 import dot.oscarorellana.proyecto.dto.ProyectoListResponseDTO;
 import dot.oscarorellana.proyecto.dto.ProyectoResponseDTO;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -30,7 +30,7 @@ public class ProyectoService {
         return proyectoRepository.createProyecto(proyecto);
     }
 
-    public Proyecto update(Proyecto proyecto) {
+    public Proyecto update(Proyecto proyecto)  {
         return proyectoRepository.updateProyecto(proyecto);
     }
 

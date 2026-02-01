@@ -1,6 +1,6 @@
 package dot.oscarorellana.etapa;
 
-import dot.oscarorellana.PaginatedResponse;
+import dot.oscarorellana.common.PaginatedResponse;
 import dot.oscarorellana.etapa.dto.EtapaResponseDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

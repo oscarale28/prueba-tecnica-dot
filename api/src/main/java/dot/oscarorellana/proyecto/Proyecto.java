@@ -28,7 +28,7 @@ public class Proyecto {
     @Column(name="FECHA_INICIO", nullable = false)
     private LocalDate fechaInicio;
 
-    @Column(name="FECHA_FIN")
+    @Column(name="FECHA_FIN", nullable = false)
     private LocalDate fechaFin;
 
     @Enumerated(EnumType.STRING)

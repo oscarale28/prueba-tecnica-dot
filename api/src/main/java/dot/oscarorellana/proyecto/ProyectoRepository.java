@@ -1,6 +1,6 @@
 package dot.oscarorellana.proyecto;
 
-import dot.oscarorellana.PaginatedResponse;
+import dot.oscarorellana.common.PaginatedResponse;
 import dot.oscarorellana.etapa.EstadoEtapa;
 import dot.oscarorellana.etapa.Etapa;
 import dot.oscarorellana.proyecto.dto.EtapaSimpleDTO;
@@ -125,7 +125,27 @@ public class ProyectoRepository implements PanacheRepository<Proyecto> {
 
     @Transactional
     public Proyecto updateProyecto(Proyecto proyecto) {
+
+        boolean hasEtapasPendientes = hasEtapasNoCompletadas(proyecto.getIdProyecto());
+
+        if (proyecto.getEstado() == EstadoProyecto.FINALIZADO && hasEtapasPendientes) {
+            throw new IllegalStateException("No se puede finalizar el proyecto si aún existen etapas pendientes de completar.");
+        }
+
         return getEntityManager().merge(proyecto);
+    }
+
+    public boolean hasEtapasNoCompletadas(Long proyectoId) {
+        Long pendientes = getEntityManager()
+                .createQuery(
+                        "select count(e) from Etapa e " +
+                                "where e.proyecto.idProyecto = :id and e.estado <> :estado",
+                        Long.class
+                )
+                .setParameter("id", proyectoId)
+                .setParameter("estado", EstadoEtapa.COMPLETADA)
+                .getSingleResult();
+        return pendientes != null && pendientes > 0;
     }
 
     @Transactional
