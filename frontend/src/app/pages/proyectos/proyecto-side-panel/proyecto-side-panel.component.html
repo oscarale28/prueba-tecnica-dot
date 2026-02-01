@@ -1,0 +1,31 @@
+<div class="h-full bg-white rounded-2xl shadow-lg flex flex-col py-6 w-full">
+    <div class="flex justify-between items-center mb-10 gap-4 px-6">
+        <h3 class="my-0!">
+            @if (proyectoService.activePanel() === Panel.Etapas) {
+            {{ proyectoService.selectedProyecto()?.nombre || 'Etapas' }}
+            } @else {
+            Editar proyecto
+            }
+        </h3>
+        <button type="button" class="text-gray-500 hover:text-gray-700 cursor-pointer"
+            (click)="proyectoService.closeSidePanel()">
+            <i class="pi pi-times"></i>
+        </button>
+    </div>
+
+    <div class="flex-1 overflow-auto px-6">
+        @if (proyectoService.activePanel() === Panel.Etapas) {
+        @if (proyectoService.etapasLoading()) {
+        <div class="py-4 text-center text-gray-500">Cargando etapas...</div>
+        } @else if (etapasTemplate) {
+        <ng-container *ngTemplateOutlet="etapasTemplate"></ng-container>
+        }
+        } @else if (proyectoService.activePanel() === Panel.Form) {
+        @if (proyectoService.formLoading()) {
+        <div class="py-4 text-center text-gray-500">Cargando proyecto...</div>
+        } @else if (formTemplate) {
+        <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
+        }
+        }
+    </div>
+</div>

@@ -1,0 +1,16 @@
+<p-dialog [visible]="visible" [modal]="true" [closable]="true" [closeOnEscape]="true"
+    [style]="{ width: '85vw', maxWidth: '32rem', minHeight: '28rem' }" (visibleChange)="closed.emit()"
+    draggable="false">
+    <ng-template #header>
+        <div class="flex flex-col gap-1 mb-3">
+            <h3 class="my-0! text-2xl">{{ title }}</h3>
+            <p class="text-lg text-gray-500">{{ subtitle }}</p>
+        </div>
+    </ng-template>
+
+    @if (loading) {
+    <div class="py-4 text-center text-gray-500">Cargando...</div>
+    } @else if (bodyTemplate) {
+    <ng-container *ngTemplateOutlet="bodyTemplate"></ng-container>
+    }
+</p-dialog>

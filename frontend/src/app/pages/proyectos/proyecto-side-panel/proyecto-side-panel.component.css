@@ -1,0 +1,25 @@
+:host {
+    display: block;
+    flex: 0 0 0;
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateX(24px);
+    pointer-events: none;
+    transition: opacity 180ms ease, transform 180ms ease, max-width 180ms ease;
+}
+
+:host.is-open {
+    flex: 0 0 35%;
+    max-width: 30%;
+    min-width: 300px;
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+@media (max-width: 991px) {
+    :host {
+        display: none;
+    }
+}

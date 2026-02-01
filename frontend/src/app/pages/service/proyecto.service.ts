@@ -1,5 +1,5 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, signal } from '@angular/core';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { Injectable, computed, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { ChartData, ChartOptions } from 'chart.js';
@@ -9,8 +9,11 @@ import {
     EstadoProyecto,
     EtapaResponseDTO,
     PaginatedResponse,
+    ProyectoPanel,
     ProyectoDetailResponseDTO,
-    ProyectoListResponseDTO
+    ProyectoListResponseDTO,
+    ProyectoResponseDTO,
+    ProyectoUpdateDTO
 } from '../models/proyecto.models';
 
 @Injectable()
@@ -29,15 +32,57 @@ export class ProyectoService {
     readonly first = signal<number>(0);
     readonly rows = signal<number>(10);
 
+    readonly selectedProyecto = signal<ProyectoListResponseDTO | null>(null);
+
     readonly etapas = signal<EtapaResponseDTO[]>([]);
     readonly etapasLoading = signal<boolean>(false);
-    readonly dialogOpen = signal<boolean>(false);
-    readonly selectedProyecto = signal<ProyectoListResponseDTO | null>(null);
+    readonly etapasDialogOpen = signal<boolean>(false);
+
+    readonly formDialogOpen = signal<boolean>(false);
+    readonly activePanel = signal<ProyectoPanel | null>(null);
+    readonly isDesktop = signal<boolean>(false);
+
+    readonly formLoading = signal<boolean>(false);
+    readonly formOriginal = signal<ProyectoResponseDTO | null>(null);
+    readonly formEditable = signal<ProyectoResponseDTO | null>(null);
+    readonly changedFields = computed(() => {
+        const original = this.formOriginal();
+        const editable = this.formEditable();
+        if (!original || !editable) {
+            return {
+                nombre: false,
+                descripcion: false,
+                estado: false,
+                fechaInicio: false,
+                fechaFin: false
+            };
+        }
+
+        return {
+            nombre: editable.nombre !== original.nombre,
+            descripcion: editable.descripcion !== original.descripcion,
+            estado: editable.estado !== original.estado,
+            fechaInicio: editable.fechaInicio !== original.fechaInicio,
+            fechaFin: editable.fechaFin !== original.fechaFin
+        };
+    });
+    readonly sidePanelOpen = computed(() => this.isDesktop() && this.activePanel() !== null);
 
     constructor(
         private http: HttpClient,
         private messageService: MessageService
-    ) { }
+    ) {
+        if (typeof window !== 'undefined') {
+            const media = window.matchMedia('(min-width: 992px)');
+            this.isDesktop.set(media.matches);
+            const handler = (event: MediaQueryListEvent) => this.isDesktop.set(event.matches);
+            if (media.addEventListener) {
+                media.addEventListener('change', handler);
+            } else {
+                media.addListener(handler);
+            }
+        }
+    }
 
     init() {
         this.loadProyectos(1, this.rows());
@@ -58,6 +103,10 @@ export class ProyectoService {
 
     getEtapasByProyecto(idProyecto: number): Observable<EtapaResponseDTO[]> {
         return this.http.get<EtapaResponseDTO[]>(`${this.etapasUrl}/${idProyecto}`);
+    }
+
+    updateProyecto(idProyecto: number, payload: ProyectoUpdateDTO): Observable<ProyectoResponseDTO | null> {
+        return this.http.put<ProyectoResponseDTO | null>(`${this.apiUrl}/${idProyecto}`, payload);
     }
 
     // Consulta paginada de proyectos
@@ -94,17 +143,136 @@ export class ProyectoService {
 
     // Apertura del diálogo de etapas
     openEtapasDialog(proyecto: ProyectoListResponseDTO) {
+        this.formDialogOpen.set(false);
+        this.formOriginal.set(null);
+        this.formEditable.set(null);
         this.selectedProyecto.set(proyecto);
-        this.dialogOpen.set(true);
         this.etapas.set([]);
         this.loadEtapas(proyecto.idProyecto);
+        if (this.isDesktop()) {
+            this.activePanel.set(ProyectoPanel.Etapas);
+        } else {
+            this.etapasDialogOpen.set(true);
+        }
     }
 
     // Cierre del diálogo de etapas
     closeEtapasDialog() {
-        this.dialogOpen.set(false);
+        this.etapasDialogOpen.set(false);
+        if (this.activePanel() === ProyectoPanel.Etapas) {
+            this.activePanel.set(null);
+        }
         this.selectedProyecto.set(null);
         this.etapas.set([]);
+    }
+
+    // Apertura del formulario de edición
+    openEditDialog(proyecto: ProyectoListResponseDTO) {
+        this.etapasDialogOpen.set(false);
+        if (this.activePanel() === ProyectoPanel.Etapas) {
+            this.activePanel.set(null);
+        }
+        this.formDialogOpen.set(false);
+        this.selectedProyecto.set(proyecto);
+        this.formOriginal.set(null);
+        this.formEditable.set(null);
+        this.formLoading.set(true);
+
+        if (this.isDesktop()) {
+            this.activePanel.set(ProyectoPanel.Form);
+        } else {
+            this.formDialogOpen.set(true);
+        }
+
+        this.getProyectoById(proyecto.idProyecto).subscribe({
+            next: (response) => {
+                const base: ProyectoResponseDTO = {
+                    idProyecto: response.idProyecto,
+                    nombre: response.nombre,
+                    descripcion: response.descripcion,
+                    fechaInicio: response.fechaInicio,
+                    fechaFin: response.fechaFin,
+                    estado: response.estado
+                };
+                this.formOriginal.set(base);
+                this.formEditable.set({ ...base });
+            },
+            error: (error: HttpErrorResponse) => {
+                console.error('Error loading proyecto:', error);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error.error.message || 'Ocurrió un error al cargar el proyecto.',
+                    life: 5000
+                });
+                this.formLoading.set(false);
+            },
+            complete: () => {
+                this.formLoading.set(false);
+            }
+        });
+    }
+
+    closeFormDialog() {
+        this.formDialogOpen.set(false);
+        if (this.activePanel() === ProyectoPanel.Form) {
+            this.activePanel.set(null);
+        }
+        this.formOriginal.set(null);
+        this.formEditable.set(null);
+    }
+
+    closeSidePanel() {
+        if (this.activePanel() === ProyectoPanel.Etapas) {
+            this.etapas.set([]);
+        }
+        if (this.activePanel() === ProyectoPanel.Form) {
+            this.formOriginal.set(null);
+            this.formEditable.set(null);
+        }
+        this.selectedProyecto.set(null);
+        this.activePanel.set(null);
+    }
+
+    updateFormField<K extends keyof ProyectoResponseDTO>(field: K, value: ProyectoResponseDTO[K]) {
+        this.formEditable.update((prev) => (prev ? { ...prev, [field]: value } : prev));
+    }
+
+    saveProyecto(payload: ProyectoUpdateDTO) {
+        const editable = this.formEditable();
+        if (!editable) {
+            return;
+        }
+
+        this.formLoading.set(true);
+        this.updateProyecto(editable.idProyecto, payload).subscribe({
+            next: () => {
+                const rows = this.rows();
+                const page = Math.floor(this.first() / rows) + 1;
+                this.loadProyectos(page, rows);
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Éxito',
+                    detail: 'Proyecto actualizado correctamente',
+                    life: 3000
+                });
+                this.closeFormDialog();
+                this.closeSidePanel();
+            },
+            error: (error: HttpErrorResponse) => {
+                console.error('Error updating proyecto:', error);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error.error.message || 'Ocurrió un error al actualizar el proyecto.',
+                    life: 5000
+                });
+                this.formLoading.set(false);
+            },
+            complete: () => {
+                this.formLoading.set(false);
+            }
+        });
     }
 
     // Mapeo de severidad de estado de proyecto para el tag en tabla

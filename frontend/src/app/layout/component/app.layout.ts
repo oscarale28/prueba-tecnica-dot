@@ -1,7 +1,7 @@
 import { Component, Renderer2, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { filter, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { AppTopbar } from './app.topbar';
 import { LayoutService } from '../service/layout.service';
 

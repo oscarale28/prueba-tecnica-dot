@@ -1,10 +1,39 @@
-<div class="proyectos-container">
-    <h2>Proyectos</h2>
-    <app-proyectos-table [proyectos]="proyectos()" [loading]="loading()" [totalRecords]="totalRecords()"
-        [first]="first()" [rows]="rows()" (pageChange)="onPageChange($event)"
-        (etapasClick)="onEtapasClick($event)"></app-proyectos-table>
+<p-toast position="bottom-right"></p-toast>
+<p-confirmdialog [draggable]="false" [closable]="false" [style]="{ width: '85vw', maxWidth: '32rem' }" />
+
+<!-------------- TEMPLATES --------------->
+
+<ng-template #etapasDialogContent>
+    @if (proyectoService.etapas().length > 0) {
+    <app-etapas-timeline />
+    } @else {
+    <div class="py-4 text-center text-gray-500">Sin etapas registradas</div>
+    }
+</ng-template>
+
+<ng-template #formDialogContent>
+    <app-proyecto-detalles-form />
+</ng-template>
+
+<!-------------- TEMPLATES --------------->
+
+<div class="flex gap-6 items-stretch">
+    <div class="flex-1 min-w-0 p-6 bg-white rounded-xl">
+        <h2 class="text-2xl font-bold mb-10">Proyectos</h2>
+        <app-proyectos-table [proyectos]="proyectos()" [loading]="loading()" [totalRecords]="totalRecords()"
+            [first]="first()" [rows]="rows()" (pageChange)="onPageChange($event)" (etapasClick)="onEtapasClick($event)"
+            (editClick)="onEditClick($event)"></app-proyectos-table>
+    </div>
+
+    <app-proyecto-side-panel [etapasTemplate]="etapasDialogContent" [formTemplate]="formDialogContent" />
 </div>
 
-<app-etapas-dialog [visible]="proyectoService.dialogOpen()" [loading]="proyectoService.etapasLoading()"
-    [etapas]="proyectoService.etapas()" [proyectoNombre]="proyectoService.selectedProyecto()?.nombre || null"
-    (closed)="proyectoService.closeEtapasDialog()"></app-etapas-dialog>
+<app-proyecto-dialog [visible]="proyectoService.etapasDialogOpen() && !proyectoService.isDesktop()"
+    [title]="proyectoService.selectedProyecto()?.nombre || 'Etapas'" [subtitle]="'Resumen de etapas'"
+    [loading]="proyectoService.etapasLoading()" [bodyTemplate]="etapasDialogContent"
+    (closed)="proyectoService.closeEtapasDialog()"></app-proyecto-dialog>
+
+<app-proyecto-dialog [visible]="proyectoService.formDialogOpen() && !proyectoService.isDesktop()"
+    [title]="proyectoService.selectedProyecto()?.nombre || 'Editar proyecto'" [subtitle]="'Detalles del proyecto'"
+    [loading]="proyectoService.formLoading()" [bodyTemplate]="formDialogContent"
+    (closed)="proyectoService.closeFormDialog()"></app-proyecto-dialog>

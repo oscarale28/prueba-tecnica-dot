@@ -46,6 +46,7 @@ export class ProyectosTableComponent {
 
     @Output() pageChange = new EventEmitter<{ first: number; rows: number }>();
     @Output() etapasClick = new EventEmitter<ProyectoListResponseDTO>();
+    @Output() editClick = new EventEmitter<ProyectoListResponseDTO>();
 
     @ViewChild('dt') dt!: Table;
 
@@ -67,5 +68,9 @@ export class ProyectosTableComponent {
 
     onEtapasClick(proyecto: ProyectoListResponseDTO) {
         this.etapasClick.emit(proyecto);
+    }
+
+    onEditClick(proyecto: ProyectoListResponseDTO) {
+        this.editClick.emit(proyecto);
     }
 }

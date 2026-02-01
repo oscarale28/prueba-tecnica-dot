@@ -1,0 +1,27 @@
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.form-field label {
+    font-weight: 600;
+    color: #111827;
+}
+
+.form-field.field-changed label {
+    color: #b45309;
+}
+
+.form-field.field-changed ::ng-deep input,
+.form-field.field-changed ::ng-deep .p-select,
+.form-field.field-changed ::ng-deep textarea,
+.form-field.field-changed ::ng-deep .p-dropdown {
+    border-color: #f59e0b;
+    background-color: #fffaf5 !important;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+}

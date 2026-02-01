@@ -25,13 +25,15 @@
                 Fecha Fin
                 <p-sortIcon field="fechaFin" />
             </th>
-            <th style="min-width: 14rem">Etapas</th>
+            <th style="min-width: 10rem">Etapas</th>
+            <th style="min-width: 8rem">Acciones</th>
         </tr>
     </ng-template>
     <ng-template #body let-proyecto>
         <tr>
             <td>{{ proyecto.nombre }}</td>
-            <td style="min-width: 18rem">{{ proyecto.descripcion }}</td>
+            <td style="min-width: 18rem" [ngClass]="{'text-gray-400': !proyecto.descripcion}">
+                {{ proyecto.descripcion || 'Sin descripción' }}</td>
             <td>
                 <p-tag [value]="proyecto.estado"
                     [severity]="proyectoService.getEstadoProyectoSeverity(proyecto.estado)" />
@@ -52,6 +54,10 @@
                     </p>
                     <p class="text-sm text-gray-400 text-center">Click para ver detalles</p>
                 </ng-template>
+            </td>
+            <td>
+                <button pButton type="button" label="Editar" icon="pi pi-pencil" class="p-button-sm"
+                    (click)="onEditClick(proyecto)"></button>
             </td>
         </tr>
     </ng-template>
