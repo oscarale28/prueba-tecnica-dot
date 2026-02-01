@@ -1,0 +1,10 @@
+.proyectos-container {
+    padding: 1.5rem;
+    background-color: #ffffff;
+    border-radius: 1rem;
+}
+
+
+::ng-deep .p-timeline-event-opposite {
+    display: none;
+}

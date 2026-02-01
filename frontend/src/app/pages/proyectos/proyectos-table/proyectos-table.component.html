@@ -1,0 +1,58 @@
+<p-table #dt [value]="proyectos" [lazy]="true" [rows]="rows" [columns]="cols" [paginator]="true"
+    [tableStyle]="{ 'min-width': '75rem' }" [rowHover]="true" dataKey="idProyecto" [totalRecords]="totalRecords"
+    [first]="first" (onLazyLoad)="onPageChange($event)"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} proyectos" [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30]" [loading]="loading" loadingIcon="pi pi-spinner pi-spin">
+    <ng-template #header>
+        <tr>
+            <th pSortableColumn="nombre" style="min-width:16rem">
+                Nombre
+                <p-sortIcon field="nombre" />
+            </th>
+            <th pSortableColumn="descripcion" style="min-width: 18rem">
+                Descripción
+                <p-sortIcon field="descripcion" />
+            </th>
+            <th pSortableColumn="estado" style="min-width: 12rem">
+                Estado
+                <p-sortIcon field="estado" />
+            </th>
+            <th pSortableColumn="fechaInicio" style="min-width: 12rem">
+                Fecha Inicio
+                <p-sortIcon field="fechaInicio" />
+            </th>
+            <th pSortableColumn="fechaFin" style="min-width: 12rem">
+                Fecha Fin
+                <p-sortIcon field="fechaFin" />
+            </th>
+            <th style="min-width: 14rem">Etapas</th>
+        </tr>
+    </ng-template>
+    <ng-template #body let-proyecto>
+        <tr>
+            <td>{{ proyecto.nombre }}</td>
+            <td style="min-width: 18rem">{{ proyecto.descripcion }}</td>
+            <td>
+                <p-tag [value]="proyecto.estado"
+                    [severity]="proyectoService.getEstadoProyectoSeverity(proyecto.estado)" />
+            </td>
+            <td>{{ proyecto.fechaInicio | date: 'dd/MM/yyyy' }}</td>
+            <td [ngClass]="{'text-gray-400': !proyecto.fechaFin}">{{ proyecto.fechaFin ? (proyecto.fechaFin | date:
+                'dd/MM/yyyy') : 'Sin definir' }}</td>
+            <td>
+                <p-chart type="doughnut" [data]="proyectoService.getEtapasChartData(proyecto)"
+                    [options]="proyectoService.getEtapasChartOptions()"
+                    [style]="{ width: '56px', height: '56px', cursor: 'pointer' }" tooltipPosition="top"
+                    [pTooltip]="tooltipTemplate" (click)="onEtapasClick(proyecto)" updateOnResize="false" />
+                <ng-template #tooltipTemplate>
+                    <p class="my-0! text-center">
+                        Etapa en progreso:
+                        {{ proyecto.resumenEtapas?.etapaActiva?.nombre || 'Sin etapa activa'
+                        }}
+                    </p>
+                    <p class="text-sm text-gray-400 text-center">Click para ver detalles</p>
+                </ng-template>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>

@@ -7,10 +7,11 @@
     left: 0;
     top: 0;
     width: 100%;
-    padding: 0 2rem;
+    padding: 4rem;
     background-color: var(--surface-card);
     transition: left var(--layout-section-transition-duration);
     display: flex;
+    justify-content: center;
     align-items: center;
 
     .layout-topbar-logo-container {

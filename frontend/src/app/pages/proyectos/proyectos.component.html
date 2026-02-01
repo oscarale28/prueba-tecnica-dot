@@ -1,0 +1,10 @@
+<div class="proyectos-container">
+    <h2>Proyectos</h2>
+    <app-proyectos-table [proyectos]="proyectos()" [loading]="loading()" [totalRecords]="totalRecords()"
+        [first]="first()" [rows]="rows()" (pageChange)="onPageChange($event)"
+        (etapasClick)="onEtapasClick($event)"></app-proyectos-table>
+</div>
+
+<app-etapas-dialog [visible]="proyectoService.dialogOpen()" [loading]="proyectoService.etapasLoading()"
+    [etapas]="proyectoService.etapas()" [proyectoNombre]="proyectoService.selectedProyecto()?.nombre || null"
+    (closed)="proyectoService.closeEtapasDialog()"></app-etapas-dialog>

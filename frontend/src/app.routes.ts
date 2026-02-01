@@ -1,13 +1,14 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from './app/layout/component/app.layout';
-import { Crud } from './app/pages/crud/crud';
+import { ProyectosComponent } from './app/pages/proyectos/proyectos.component';
 
 export const appRoutes: Routes = [
     {
         path: '',
         component: AppLayout,
         children: [
-            { path: '', component: Crud }
+            { path: '', pathMatch: 'full', redirectTo: 'proyectos' },
+            { path: 'proyectos', component: ProyectosComponent }
         ]
     }
 ];

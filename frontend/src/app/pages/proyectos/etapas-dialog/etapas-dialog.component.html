@@ -1,0 +1,18 @@
+<p-dialog [visible]="visible" [modal]="true" [closable]="true" [closeOnEscape]="true"
+    [style]="{ width: '80vw', maxWidth: '30rem', minHeight: '25rem' }" (visibleChange)="closed.emit()"
+    draggable="false">
+    <ng-template #header>
+        <div class="flex flex-col gap-1 mb-3">
+            <h3 class="my-0! text-2xl">{{ proyectoNombre || 'Etapas' }}</h3>
+            <p class="text-lg text-gray-500">Resumen de etapas</p>
+        </div>
+    </ng-template>
+
+    @if (loading) {
+    <div class="py-4 text-center text-gray-500">Cargando etapas...</div>
+    } @else if (etapas.length > 0) {
+    <app-etapas-timeline [etapas]="etapas" />
+    } @else {
+    <div class="py-4 text-center text-gray-500">Sin etapas registradas</div>
+    }
+</p-dialog>
