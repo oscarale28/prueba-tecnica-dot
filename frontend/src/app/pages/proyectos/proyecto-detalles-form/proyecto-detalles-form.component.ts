@@ -28,7 +28,7 @@ export class ProyectoDetallesFormComponent {
     readonly confirmService = inject(ConfirmationService);
     readonly formErrors = computed(() => {
         const draft = this.proyectoService.draft();
-        if (!draft) {
+        if (!draft || !this.proyectoService.shouldValidateForm()) {
             return {
                 nombre: '',
                 descripcion: '',
@@ -78,12 +78,16 @@ export class ProyectoDetallesFormComponent {
     });
 
     readonly proyectoPausado = computed(() => this.proyectoService.proyectoPausado());
+    readonly isCreateMode = computed(() => this.proyectoService.isCreateMode());
     readonly isFormValid = computed(() => {
         const errors = this.formErrors();
         return !errors.nombre && !errors.descripcion && !errors.estado && !errors.fechaInicio && !errors.dateOrder;
     });
 
     readonly hasChanges = computed(() => {
+        if (this.isCreateMode()) {
+            return !!this.proyectoService.draft();
+        }
         const changed = this.proyectoService.changedFields();
         return (
             changed.nombre ||
@@ -99,7 +103,7 @@ export class ProyectoDetallesFormComponent {
     }
 
     onSave() {
-        if (!this.hasChanges()) {
+        if (!this.isCreateMode() && !this.hasChanges()) {
             this.messageService.add({
                 severity: 'info',
                 summary: 'Sin cambios',
@@ -108,6 +112,7 @@ export class ProyectoDetallesFormComponent {
             });
             return;
         }
+        this.proyectoService.markFormSubmitted();
         if (!this.isFormValid()) {
             return;
         }
@@ -117,7 +122,7 @@ export class ProyectoDetallesFormComponent {
             return;
         }
 
-        if (draft.estado === EstadoProyectoEnum.PAUSADO) {
+        if (!this.isCreateMode() && draft.estado === EstadoProyectoEnum.PAUSADO) {
             this.confirmService.confirm({
                 message: 'Está a punto de pausar el proyecto seleccionado. Esto no permitirá modificar el proyecto ni sus etapas hasta que sea reanudado. ¿Está seguro de querer continuar?',
                 header: 'Pausar proyecto',

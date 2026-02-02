@@ -1,4 +1,12 @@
-<p-timeline [value]="etapaService.etapas()">
+@if (etapaService.isCreateMode()) {
+<div class="flex justify-end mb-4">
+    <button pButton type="button" label="Agregar etapa" icon="pi pi-plus" (click)="etapaService.addDraftEtapa()"
+        [disabled]="etapaService.saving() || etapaService.creatingDrafts()"
+        pTooltip="Agregar etapa" tooltipPosition="top"></button>
+</div>
+}
+
+<p-timeline [value]="etapaService.timelineEtapas()">
     <ng-template #marker let-event>
         <span class="flex w-8 h-8 items-center justify-center rounded-full z-10 shadow-sm" [style]="{
                 'background-color': proyectoService.getEtapaStatusColor(event.estado),

@@ -13,13 +13,23 @@
 
 <ng-template #formDialogContent>
     <app-proyecto-detalles-form />
+    @if (proyectoService.isCreateMode()) {
+    <div class="mt-6">
+        <app-etapas-timeline />
+    </div>
+    }
 </ng-template>
 
 <!-------------- TEMPLATES --------------->
 
 <div class="flex gap-6 items-stretch">
     <div class="flex-1 min-w-0 p-6 bg-white rounded-xl">
-        <h2 class="text-2xl font-bold mb-10">Proyectos</h2>
+        <div class="flex flex-col lg:flex-row justify-between items-center mb-10 gap-4">
+            <h2 class="text-2xl font-bold mb-10">Proyectos</h2>
+            <button pButton type="button" ngClass="lg:w-auto w-full" label="Nuevo proyecto" icon="pi pi-plus"
+                class="p-button-lg" (click)="onNewProjectClick()" pTooltip="Nuevo proyecto"
+                tooltipPosition="top"></button>
+        </div>
         <app-proyectos-table [proyectos]="proyectos()" [loading]="loading()" [totalRecords]="totalRecords()"
             [first]="first()" [rows]="rows()" (pageChange)="onPageChange($event)" (etapasClick)="onEtapasClick($event)"
             (editClick)="onEditClick($event)"></app-proyectos-table>
@@ -34,6 +44,7 @@
     (closed)="proyectoService.closeEtapasDialog()"></app-proyecto-dialog>
 
 <app-proyecto-dialog [visible]="proyectoService.formDialogOpen() && !proyectoService.isDesktop()"
-    [title]="proyectoService.selectedProyecto()?.nombre || 'Editar proyecto'" [subtitle]="'Detalles del proyecto'"
+    [title]="proyectoService.isCreateMode() ? 'Nuevo proyecto' : (proyectoService.selectedProyecto()?.nombre || 'Editar proyecto')"
+    [subtitle]="'Detalles del proyecto'"
     [loading]="proyectoService.formLoading()" [bodyTemplate]="formDialogContent"
     (closed)="proyectoService.closeFormDialog()"></app-proyecto-dialog>

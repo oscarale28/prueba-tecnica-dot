@@ -12,6 +12,7 @@ import { ProyectoDetallesFormComponent } from './proyecto-detalles-form/proyecto
 import { ProyectoSidePanelComponent } from './proyecto-side-panel/proyecto-side-panel.component';
 import { Toast } from "primeng/toast";
 import { ConfirmDialog } from 'primeng/confirmdialog';
+import { ButtonDirective } from "primeng/button";
 @Component({
     selector: 'app-proyectos',
     standalone: true,
@@ -23,7 +24,8 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
         ProyectoDetallesFormComponent,
         ProyectoSidePanelComponent,
         Toast,
-        ConfirmDialog
+        ConfirmDialog,
+        ButtonDirective
     ],
     templateUrl: 'proyectos.component.html',
     styleUrls: ['proyectos.component.css'],
@@ -48,5 +50,9 @@ export class ProyectosComponent {
 
     onEditClick(proyecto: ProyectoListResponseDTO) {
         this.proyectoService.openEditDialog(proyecto);
+    }
+
+    onNewProjectClick() {
+        this.proyectoService.openNewProjectDialog();
     }
 }

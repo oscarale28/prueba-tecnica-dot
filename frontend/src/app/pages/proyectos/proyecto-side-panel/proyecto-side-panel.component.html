@@ -3,8 +3,10 @@
         <h3 class="my-0!">
             @if (proyectoService.activePanel() === Panel.Etapas) {
             {{ proyectoService.selectedProyecto()?.nombre || 'Etapas' }}
-            } @else {
-            Editar proyecto
+            } @else if (proyectoService.activePanel() === Panel.NuevoProyecto) {
+            Nuevo proyecto
+            } @else if (proyectoService.activePanel() === Panel.EditarProyecto) {
+            {{ proyectoService.selectedProyecto()?.nombre || 'Editar proyecto' }}
             }
         </h3>
         <button type="button" class="text-gray-500 hover:text-gray-700 cursor-pointer"
@@ -20,7 +22,8 @@
         } @else if (etapasTemplate) {
         <ng-container *ngTemplateOutlet="etapasTemplate"></ng-container>
         }
-        } @else if (proyectoService.activePanel() === Panel.Form) {
+        } @else if (proyectoService.activePanel() === Panel.NuevoProyecto || proyectoService.activePanel() ===
+        Panel.EditarProyecto) {
         @if (proyectoService.formLoading()) {
         <div class="py-4 text-center text-gray-500">Cargando proyecto...</div>
         } @else if (formTemplate) {

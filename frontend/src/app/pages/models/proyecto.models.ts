@@ -8,7 +8,8 @@ export interface PaginatedResponse<T> {
 
 export enum ProyectoPanel {
     Etapas = 'etapas',
-    Form = 'form'
+    NuevoProyecto = 'nuevo-proyecto',
+    EditarProyecto = 'editar-proyecto'
 }
 
 export enum EstadoProyectoEnum {
@@ -62,6 +63,14 @@ export interface ProyectoResponseDTO {
     estado: EstadoProyectoEnum;
 }
 
+export interface ProyectoCreateDTO {
+    nombre: string;
+    descripcion: string;
+    fechaInicio: string;
+    fechaFin: string | null;
+    estado: EstadoProyectoEnum;
+}
+
 export interface ProyectoUpdateDTO {
     nombre: string;
     descripcion: string;
@@ -79,6 +88,16 @@ export interface EtapaResponseDTO {
     presupuestoAsignado: number;
     estado: EstadoEtapaEnum;
     proyecto: ProyectoResponseDTO;
+}
+
+export interface EtapaCreateDTO {
+    nombre: string;
+    orden: number;
+    fechaInicio: string;
+    fechaFinEstimada: string;
+    presupuestoAsignado: number;
+    estado: EstadoEtapaEnum;
+    proyectoId: number;
 }
 
 export interface EtapaUpdateDTO {

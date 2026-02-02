@@ -10,6 +10,7 @@ import {
     EtapaResponseDTO,
     PaginatedResponse,
     ProyectoPanel,
+    ProyectoCreateDTO,
     ProyectoDetailResponseDTO,
     ProyectoListResponseDTO,
     ProyectoResponseDTO,
@@ -43,10 +44,15 @@ export class ProyectoService {
     readonly formDialogOpen = signal<boolean>(false);
     readonly activePanel = signal<ProyectoPanel | null>(null);
     readonly isDesktop = signal<boolean>(false);
+    readonly formMode = signal<'create' | 'edit' | null>(null);
+    readonly formSubmitted = signal<boolean>(false);
+    readonly createdProyectoId = signal<number | null>(null);
 
     readonly formLoading = signal<boolean>(false);
     readonly formOriginal = signal<ProyectoResponseDTO | null>(null);
     readonly draft = signal<ProyectoResponseDTO | null>(null);
+    readonly isCreateMode = computed(() => this.formMode() === 'create');
+    readonly shouldValidateForm = computed(() => !this.isCreateMode() || this.formSubmitted());
     readonly changedFields = computed(() => {
         const original = this.formOriginal();
         const editable = this.draft();
@@ -107,6 +113,10 @@ export class ProyectoService {
         return this.http.get<EtapaResponseDTO[]>(`${this.etapasUrl}/${idProyecto}`);
     }
 
+    createProyecto(payload: ProyectoCreateDTO): Observable<ProyectoResponseDTO> {
+        return this.http.post<ProyectoResponseDTO>(this.apiUrl, payload);
+    }
+
     updateProyecto(idProyecto: number, payload: ProyectoUpdateDTO): Observable<ProyectoResponseDTO | null> {
         return this.http.put<ProyectoResponseDTO | null>(`${this.apiUrl}/${idProyecto}`, payload);
     }
@@ -152,8 +162,7 @@ export class ProyectoService {
     // Apertura del diálogo de etapas
     openEtapasDialog(proyecto: ProyectoListResponseDTO) {
         this.formDialogOpen.set(false);
-        this.formOriginal.set(null);
-        this.draft.set(null);
+        this.resetFormState();
         this.selectedProyecto.set(proyecto);
         this.etapas.set([]);
         this.loadEtapas(proyecto.idProyecto);
@@ -181,13 +190,13 @@ export class ProyectoService {
             this.activePanel.set(null);
         }
         this.formDialogOpen.set(false);
+        this.resetFormState();
+        this.formMode.set('edit');
         this.selectedProyecto.set(proyecto);
-        this.formOriginal.set(null);
-        this.draft.set(null);
         this.formLoading.set(true);
 
         if (this.isDesktop()) {
-            this.activePanel.set(ProyectoPanel.Form);
+            this.activePanel.set(ProyectoPanel.EditarProyecto);
         } else {
             this.formDialogOpen.set(true);
         }
@@ -221,29 +230,50 @@ export class ProyectoService {
         });
     }
 
+    openNewProjectDialog() {
+        this.formDialogOpen.set(false);
+        this.resetFormState();
+        this.formMode.set('create');
+        this.formSubmitted.set(false);
+        this.draft.set({
+            idProyecto: 0,
+            nombre: '',
+            descripcion: '',
+            fechaInicio: '',
+            fechaFin: '',
+            estado: EstadoProyectoEnum.PLANIFICADO
+        } as ProyectoResponseDTO);
+        this.selectedProyecto.set(null);
+        this.etapas.set([]);
+        this.formLoading.set(false);
+        if (this.isDesktop()) {
+            this.activePanel.set(ProyectoPanel.NuevoProyecto);
+        } else {
+            this.formDialogOpen.set(true);
+        }
+    }
+
     closeFormDialog() {
         this.formDialogOpen.set(false);
-        if (this.activePanel() === ProyectoPanel.Form) {
-            this.activePanel.set(null);
-        }
-        this.formOriginal.set(null);
-        this.draft.set(null);
+        this.activePanel.set(null);
+        this.resetFormState();
     }
 
     closeSidePanel() {
         if (this.activePanel() === ProyectoPanel.Etapas) {
             this.etapas.set([]);
         }
-        if (this.activePanel() === ProyectoPanel.Form) {
-            this.formOriginal.set(null);
-            this.draft.set(null);
-        }
         this.selectedProyecto.set(null);
         this.activePanel.set(null);
+        this.resetFormState();
     }
 
     updateFormField<K extends keyof ProyectoResponseDTO>(field: K, value: ProyectoResponseDTO[K]) {
         this.draft.update((prev) => (prev ? { ...prev, [field]: value } : prev));
+    }
+
+    markFormSubmitted() {
+        this.formSubmitted.set(true);
     }
 
     saveProyecto(payload: ProyectoUpdateDTO) {
@@ -253,6 +283,34 @@ export class ProyectoService {
         }
 
         this.formLoading.set(true);
+        if (this.isCreateMode()) {
+            this.createProyecto(payload).subscribe({
+                next: (response) => {
+                    this.loadProyectos();
+                    this.createdProyectoId.set(response.idProyecto);
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Éxito',
+                        detail: 'Proyecto creado correctamente',
+                        life: 3000
+                    });
+                },
+                error: (error: HttpErrorResponse) => {
+                    console.error('Error creating proyecto:', error);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: error.error?.message || 'Ocurrió un error al crear el proyecto.',
+                        life: 5000
+                    });
+                    this.formLoading.set(false);
+                },
+                complete: () => {
+                    this.formLoading.set(false);
+                }
+            });
+            return;
+        }
         this.updateProyecto(editable.idProyecto, payload).subscribe({
             next: () => {
                 this.loadProyectos();
@@ -279,6 +337,25 @@ export class ProyectoService {
                 this.formLoading.set(false);
             }
         });
+    }
+
+    finalizeCreateFlow() {
+        this.formLoading.set(false);
+        this.closeFormDialog();
+        this.closeSidePanel();
+        this.createdProyectoId.set(null);
+    }
+
+    clearCreatedProyectoId() {
+        this.createdProyectoId.set(null);
+    }
+
+    private resetFormState() {
+        this.formOriginal.set(null);
+        this.draft.set(null);
+        this.formMode.set(null);
+        this.formSubmitted.set(false);
+        this.createdProyectoId.set(null);
     }
 
     // Mapeo de severidad de estado de proyecto para el tag en tabla

@@ -4,7 +4,8 @@
         <input id="proyecto-nombre" type="text" pInputText
             [disabled]="!proyectoService.draft() || this.proyectoPausado()"
             [ngModel]="proyectoService.draft()?.nombre || ''" (ngModelChange)="onFieldChange('nombre', $event)" />
-        <app-field-error [showError]="!!formErrors().nombre" [errorMessage]="formErrors().nombre" />
+        <app-field-error [showError]="proyectoService.shouldValidateForm() && !!formErrors().nombre"
+            [errorMessage]="formErrors().nombre" />
     </div>
 
     <div class="form-field" [ngClass]="{ 'field-changed': proyectoService.changedFields().descripcion }">
@@ -15,16 +16,20 @@
             [disabled]="!proyectoService.draft() || this.proyectoPausado()"
             [ngModel]="proyectoService.draft()?.descripcion || ''"
             (ngModelChange)="onFieldChange('descripcion', $event)"></textarea>
-        <app-field-error [showError]="!!formErrors().descripcion" [errorMessage]="formErrors().descripcion" />
+        <app-field-error [showError]="proyectoService.shouldValidateForm() && !!formErrors().descripcion"
+            [errorMessage]="formErrors().descripcion" />
     </div>
 
+    @if(!isCreateMode()) {
     <div class="form-field" [ngClass]="{ 'field-changed': proyectoService.changedFields().estado }">
         <label for="proyecto-estado">Estado</label>
         <p-select id="proyecto-estado" [options]="estadoOptions" optionLabel="label" optionValue="value"
             [disabled]="!proyectoService.draft()" [ngModel]="proyectoService.draft()?.estado"
             (ngModelChange)="onFieldChange('estado', $event)"></p-select>
-        <app-field-error [showError]="!!formErrors().estado" [errorMessage]="formErrors().estado" />
+        <app-field-error [showError]="proyectoService.shouldValidateForm() && !!formErrors().estado"
+            [errorMessage]="formErrors().estado" />
     </div>
+    }
 
     <div class="form-field" [ngClass]="{ 'field-changed': proyectoService.changedFields().fechaInicio }">
         <label for="proyecto-fecha-inicio">Fecha inicio</label>
@@ -32,7 +37,8 @@
             [disabled]="!proyectoService.draft() || this.proyectoPausado()"
             [ngModel]="proyectoService.draft()?.fechaInicio || ''"
             (ngModelChange)="onFieldChange('fechaInicio', $event)" />
-        <app-field-error [showError]="!!formErrors().fechaInicio" [errorMessage]="formErrors().fechaInicio" />
+        <app-field-error [showError]="proyectoService.shouldValidateForm() && !!formErrors().fechaInicio"
+            [errorMessage]="formErrors().fechaInicio" />
     </div>
 
     <div class="form-field" [ngClass]="{ 'field-changed': proyectoService.changedFields().fechaFin }">
@@ -40,11 +46,13 @@
         <input id="proyecto-fecha-fin" type="date" pInputText
             [disabled]="!proyectoService.draft() || this.proyectoPausado()"
             [ngModel]="proyectoService.draft()?.fechaFin || ''" (ngModelChange)="onFieldChange('fechaFin', $event)" />
-        <app-field-error [showError]="!!formErrors().dateOrder" [errorMessage]="formErrors().dateOrder" />
+        <app-field-error [showError]="proyectoService.shouldValidateForm() && !!formErrors().dateOrder"
+            [errorMessage]="formErrors().dateOrder" />
     </div>
 
     <div class="form-actions">
-        <button pButton type="button" label="Guardar" icon="pi pi-save" [loading]="proyectoService.formLoading()"
-            [disabled]="proyectoService.formLoading()" (click)="onSave()"></button>
+        <button pButton type="button" [label]="isCreateMode() ? 'Crear' : 'Guardar'" icon="pi pi-save"
+            [loading]="proyectoService.formLoading()" [disabled]="proyectoService.formLoading()"
+            (click)="onSave()"></button>
     </div>
 </div>
