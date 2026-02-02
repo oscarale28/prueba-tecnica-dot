@@ -34,4 +34,4 @@ La API está configurada para conectarse a PostgreSQL en el contenedor `postgres
 
 ## Datos de prueba
 
-A través del archivo `import.sql`, al correr la API se cargan 50 proyectos y 150 etapas (3 por proyecto) como datos iniciales de prueba.
+A través del archivo `import.sql`, al correr la API se cargan 50 proyectos y 150 etapas (3 por proyecto) como datos iniciales de prueba. O bien, puede ejecutarse el script manualmente desde la consola de PostgreSQL.
