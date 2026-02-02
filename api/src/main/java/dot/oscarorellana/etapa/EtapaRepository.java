@@ -45,15 +45,7 @@ public class EtapaRepository implements PanacheRepository<Etapa> {
                         etapa.getFechaInicio(),
                         etapa.getFechaFinEstimada(),
                         etapa.getPresupuestoAsignado(),
-                        etapa.getEstado(),
-                        etapa.getProyecto() != null ? new ProyectoResponseDTO(
-                                etapa.getProyecto().getIdProyecto(),
-                                etapa.getProyecto().getNombre(),
-                                etapa.getProyecto().getDescripcion(),
-                                etapa.getProyecto().getFechaInicio(),
-                                etapa.getProyecto().getFechaFin(),
-                                etapa.getProyecto().getEstado()
-                        ) : null
+                        etapa.getEstado()
                 )).toList();
     }
 

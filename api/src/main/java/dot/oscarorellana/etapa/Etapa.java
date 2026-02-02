@@ -32,7 +32,7 @@ public class Etapa {
     private BigDecimal presupuestoAsignado;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="ESTADO", nullable = false, length = 20)
+    @Column(name="ESTADO", nullable = false, length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'PENDIENTE'")
     private EstadoEtapa estado;
 
     @ManyToOne(fetch = FetchType.LAZY)

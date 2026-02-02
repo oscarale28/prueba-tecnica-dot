@@ -65,26 +65,10 @@ public class EtapaResource {
 
     @PUT
     @Path("/{id}")
-    public Response update(@PathParam("id") Long id, @Valid EtapaUpdateDTO dto) {
+    public Response update(@PathParam("id") Long id, @Valid EtapaInfoUpdateDTO dto) {
         return etapaService.findById(id)
                 .map(existing -> {
-                    // Update proyecto if provided
-                    if (dto.getProyectoId() != null) {
-                        return proyectoService.findEntityById(dto.getProyectoId())
-                                .map(proyecto -> {
-                                    etapaMapper.updateEntityFromDto(existing, dto, proyecto);
-                                    try {
-                                        etapaService.validateEtapaStateTransition(existing);
-                                    } catch (IllegalStateException ex) {
-                                        return HttpUtils.badRequest(ex.getMessage());
-                                    }
-                                    Etapa updated = etapaService.update(existing);
-                                    return Response.ok(etapaMapper.toResponseDTO(updated)).build();
-                                })
-                                .orElse(HttpUtils.notFound("Proyecto no encontrado con ID: " + dto.getProyectoId()));
-                    }
-                    
-                    etapaMapper.updateEntityFromDto(existing, dto, null);
+                    etapaMapper.updateEntityFromInfoDto(existing, dto);
                     try {
                         etapaService.validateEtapaStateTransition(existing);
                     } catch (IllegalStateException ex) {
@@ -92,6 +76,25 @@ public class EtapaResource {
                     }
                     Etapa updated = etapaService.update(existing);
                     return Response.ok(etapaMapper.toResponseDTO(updated)).build();
+                })
+                .orElse(HttpUtils.notFound("Etapa no encontrada con ID: " + id));
+    }
+
+    @PATCH
+    @Path("/{id}/estado")
+    public Response updateEstado(@PathParam("id") Long id) {
+        return etapaService.findById(id)
+                .map(existing -> {
+                    try {
+                        EstadoEtapa nextEstado = existing.getEstado()
+                                .getEstadoEtapaToUpdateTo(existing.getEstado());
+                        existing.setEstado(nextEstado);
+                        etapaService.validateEtapaStateTransition(existing);
+                        Etapa updated = etapaService.update(existing);
+                        return Response.ok(etapaMapper.toResponseDTO(updated)).build();
+                    } catch (IllegalArgumentException | IllegalStateException ex) {
+                        return HttpUtils.badRequest(ex.getMessage());
+                    }
                 })
                 .orElse(HttpUtils.notFound("Etapa no encontrada con ID: " + id));
     }

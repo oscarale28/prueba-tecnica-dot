@@ -15,15 +15,13 @@ public class EtapaResponseDTO {
     private LocalDate fechaFinEstimada;
     private BigDecimal presupuestoAsignado;
     private EstadoEtapa estado;
-    private ProyectoResponseDTO proyecto;
 
     public EtapaResponseDTO() {
     }
 
     public EtapaResponseDTO(Long idEtapa, String nombre, Integer orden, 
                            LocalDate fechaInicio, LocalDate fechaFinEstimada, 
-                           BigDecimal presupuestoAsignado, EstadoEtapa estado, 
-                           ProyectoResponseDTO proyecto) {
+                           BigDecimal presupuestoAsignado, EstadoEtapa estado) {
         this.idEtapa = idEtapa;
         this.nombre = nombre;
         this.orden = orden;
@@ -31,7 +29,6 @@ public class EtapaResponseDTO {
         this.fechaFinEstimada = fechaFinEstimada;
         this.presupuestoAsignado = presupuestoAsignado;
         this.estado = estado;
-        this.proyecto = proyecto;
     }
 
     public Long getIdEtapa() {
@@ -88,13 +85,5 @@ public class EtapaResponseDTO {
 
     public void setEstado(EstadoEtapa estado) {
         this.estado = estado;
-    }
-
-    public ProyectoResponseDTO getProyecto() {
-        return proyecto;
-    }
-
-    public void setProyecto(ProyectoResponseDTO proyecto) {
-        this.proyecto = proyecto;
     }
 }

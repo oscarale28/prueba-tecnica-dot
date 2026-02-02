@@ -44,11 +44,15 @@ public class ProyectoResource {
 
     @POST
     public Response create(@Valid ProyectoCreateDTO dto) {
+        try {
         Proyecto proyecto = proyectoMapper.toEntity(dto);
         Proyecto created = proyectoService.create(proyecto);
         return Response.status(Response.Status.CREATED)
                 .entity(proyectoMapper.toResponseDTO(created))
                 .build();
+        } catch(RuntimeException ex) {
+            return HttpUtils.badRequest("Ocurrió un error al crear el proyecto");
+        }
     }
 
     @PUT
@@ -57,6 +61,11 @@ public class ProyectoResource {
         return proyectoService.findEntityById(id)
                 .map(existing -> {
                     try {
+                        // Validar transición de estado
+                        if (!existing.getEstado().canUpdateEstadoProyecto(dto.getEstado())) {
+                            throw new IllegalStateException("No se puede cambiar el estado del proyecto de "
+                                    + existing.getEstado() + " a " + dto.getEstado());
+                        }
                         proyectoMapper.updateEntityFromDto(existing, dto);
                         proyectoService.update(existing);
                         return HttpUtils.success("Proyecto actualizado exitosamente");

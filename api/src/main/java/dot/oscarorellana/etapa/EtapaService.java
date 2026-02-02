@@ -46,7 +46,7 @@ public class EtapaService {
         );
 
         if (etapasPendientes > 0) {
-            throw new IllegalStateException("No se puede marcar EN_PROGRESO si existen etapas previas sin completar.");
+            throw new IllegalStateException("Debe completar las etapas anteriores antes de iniciar esta etapa.");
         }
     }
 

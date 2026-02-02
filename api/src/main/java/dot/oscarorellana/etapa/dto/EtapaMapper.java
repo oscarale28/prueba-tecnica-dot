@@ -24,16 +24,12 @@ public class EtapaMapper {
         return etapa;
     }
 
-    public void updateEntityFromDto(Etapa etapa, EtapaUpdateDTO dto, Proyecto proyecto) {
+    public void updateEntityFromInfoDto(Etapa etapa, EtapaInfoUpdateDTO dto) {
         etapa.setNombre(dto.getNombre());
         etapa.setOrden(dto.getOrden());
         etapa.setFechaInicio(dto.getFechaInicio());
         etapa.setFechaFinEstimada(dto.getFechaFinEstimada());
         etapa.setPresupuestoAsignado(dto.getPresupuestoAsignado());
-        etapa.setEstado(dto.getEstado());
-        if (proyecto != null) {
-            etapa.setProyecto(proyecto);
-        }
     }
 
     public EtapaResponseDTO toResponseDTO(Etapa etapa) {
@@ -44,8 +40,7 @@ public class EtapaMapper {
             etapa.getFechaInicio(),
             etapa.getFechaFinEstimada(),
             etapa.getPresupuestoAsignado(),
-            etapa.getEstado(),
-            proyectoMapper.toResponseDTO(etapa.getProyecto())
+            etapa.getEstado()
         );
     }
 }
